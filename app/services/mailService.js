@@ -1,6 +1,6 @@
 // services/mailService.js
 const nodemailer = require('nodemailer');
-const config = require('../../envConfig')
+const config = require('../../config/envConfig')
 
 // Configure nodemailer transport
 const transporter = nodemailer.createTransport({

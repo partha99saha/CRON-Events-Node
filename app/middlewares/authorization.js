@@ -1,6 +1,6 @@
 const User = require('../models').User;
 const jwt = require('jsonwebtoken');
-const config = require('../../envConfig')
+const config = require('../../config/envConfig')
 const logger = require('../utils/logger')
 const JWT_SECRET = config.jwtSecret;
 
