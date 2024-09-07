@@ -1,32 +1,27 @@
-const cron = require('node-cron');
-const Event = require('../models').Event;  // Assuming you have an Event model set up
+const { Event } = require('../models');
+const logger = require('../config/logger');
 
 /**
  * Schedule a cron job to run at 12 PM every day
  */
-cron.schedule('0 12 * * *', async () => {
+exports.cronService = async () => {
     try {
-        console.log('Running cron job at 12 PM');
-        // Add a new event every day at 12 PM
-        const newEvent = {
-            title: 'Daily Scheduled Event',
-            description: 'This event was created automatically at 12 PM IST',
-            city: 'New Delhi',
-            date: new Date(),
-            paidStatus: false,
-            eventImage: '',
-        };
-        // Add new event to the database
-        await Event.create(newEvent);
-        console.log('New event created successfully');
+        logger.log('Running cron job at 12 PM');
+        // Fetch events that need to be created or updated
+        const eventsToCreate = await getEventsToCreate();
 
-        // Activate any events that are marked inactive and are scheduled for today
-        const today = new Date();
+        // Create new events based on fetched data
+        for (const eventData of eventsToCreate) {
+            await Event.create(eventData);
+            logger.log(`New event created: ${eventData.title}`);
+        }
+        // Activate events that need to be updated
+        const today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
         await Event.update(
-            { active: true },
+            { displayStatus: true },
             {
                 where: {
-                    active: false,
+                    displayStatus: false,
                     date: today
                 }
             }
@@ -35,4 +30,22 @@ cron.schedule('0 12 * * *', async () => {
     } catch (error) {
         console.error('Error running cron job:', error);
     }
-});
+}
+
+/**
+ * Fetch events to be created or updated
+ * @returns {Array} List of event objects
+ */
+async function getEventsToCreate() {
+    return [
+        {
+            title: 'Scheduled Event Example',
+            description: 'Automatically scheduled event',
+            city: 'New Delhi',
+            date: new Date(),
+            paidStatus: false,
+            displayStatus: true,
+            eventImage: ''
+        }
+    ];
+}

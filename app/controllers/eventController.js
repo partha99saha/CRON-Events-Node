@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const Event = require('../models').Event;
-const logger = require('../config/logger')
+const logger = require('../config/logger');
 const { validationResult } = require('express-validator');
 
 /**
@@ -10,7 +10,7 @@ const { validationResult } = require('express-validator');
  * @param {*} res 
  * @returns 
  */
-exports.addEvent = async (req, res) => {
+exports.addEvent = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -36,7 +36,9 @@ exports.addEvent = async (req, res) => {
             displayStatus,
             eventImage: eventImage.path // Save the image path or URL
         });
-        res.status(201).json({ event });
+        
+        const eventUrl = `${req.protocol}://${req.get('host')}/events/${event.id}`;
+        res.status(201).json({ event, eventUrl });
     } catch (error) {
         logger.error('Error adding event:', error);
         next(error);
@@ -44,15 +46,42 @@ exports.addEvent = async (req, res) => {
 };
 
 /**
- * View all events
+ * View all events with pagination
  * @param {*} req 
  * @param {*} res 
  * @returns 
  */
-exports.getEvents = async (req, res) => {
+exports.getEvents = async (req, res, next) => {
+    const { page = 1, limit = 10, search = '', filterDate = '', filterCity = '' } = req.query;
+    const offset = (page - 1) * limit;
+
     try {
-        const events = await Event.findAll();
-        res.json({ events });
+        const queryOptions = {
+            limit,
+            offset,
+            where: {
+                [Op.and]: [
+                    search ? {
+                        [Op.or]: [
+                            { title: { [Op.iLike]: `%${search}%` } },
+                            { city: { [Op.iLike]: `%${search}%` } }
+                        ]
+                    } : {},
+                    filterDate ? { createdAt: { [Op.gte]: new Date(filterDate) } } : {},
+                    filterCity ? { city: { [Op.iLike]: `%${filterCity}%` } } : {}
+                ]
+            },
+            order: [['createdAt', 'DESC']]
+        };
+
+        const events = await Event.findAndCountAll(queryOptions);
+
+        res.json({
+            events: events.rows,
+            total: events.count,
+            page: parseInt(page, 10),
+            totalPages: Math.ceil(events.count / limit)
+        });
     } catch (error) {
         logger.error('Error fetching events:', error);
         next(error);
@@ -65,7 +94,7 @@ exports.getEvents = async (req, res) => {
  * @param {*} res 
  * @returns 
  */
-exports.editEvent = async (req, res) => {
+exports.editEvent = async (req, res, next) => {
     const { id } = req.params;
     const { title, description, email, phone, address, city, organizerDetails, paidStatus, displayStatus } = req.body;
     const eventImage = req.file; // Assuming file upload middleware is used
@@ -103,7 +132,7 @@ exports.editEvent = async (req, res) => {
  * @param {*} res 
  * @returns 
  */
-exports.deleteEvent = async (req, res) => {
+exports.deleteEvent = async (req, res, next) => {
     const { id } = req.params;
 
     try {
@@ -121,6 +150,62 @@ exports.deleteEvent = async (req, res) => {
         res.status(204).send();
     } catch (error) {
         logger.error('Error deleting event:', error);
+        next(error);
+    }
+};
+
+/**
+ * Like an event
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ * @returns 
+ */
+exports.likeEvent = async (req, res, next) => {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    try {
+        const existingLike = await Like.findOne({
+            where: { userId, eventId: id, type: 'like' }
+        });
+
+        if (existingLike) {
+            return res.status(400).json({ message: 'Event already liked' });
+        }
+
+        await Like.create({ userId, eventId: id, type: 'like' });
+        res.status(200).send('Event liked successfully');
+    } catch (error) {
+        logger.error('Error liking event:', error);
+        next(error);
+    }
+};
+
+/**
+ * Dislike an event
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ * @returns 
+ */
+exports.dislikeEvent = async (req, res, next) => {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    try {
+        const existingLike = await Like.findOne({
+            where: { userId, eventId: id, type: 'dislike' }
+        });
+
+        if (existingLike) {
+            return res.status(400).json({ message: 'Event already disliked' });
+        }
+
+        await Like.create({ userId, eventId: id, type: 'dislike' });
+        res.status(200).send('Event disliked successfully');
+    } catch (error) {
+        logger.error('Error disliking event:', error);
         next(error);
     }
 };
