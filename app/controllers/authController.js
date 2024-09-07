@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const { createToken } = require('../middlewares/authorization');
 const { validationResult } = require('express-validator');
 const { sendEmail } = require('../services/mailService');
-const logger = require('../config/logger')
+const logger = require('../utils/logger')
 
 /**
  * Register User

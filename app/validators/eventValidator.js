@@ -1,4 +1,4 @@
-const { body, validationResult } = require('express-validator');
+const { body } = require('express-validator');
 
 // Validation rules for adding and editing an event
 exports.eventValidationRules = () => {

@@ -1,6 +1,7 @@
 const User = require('../models').User;
 const jwt = require('jsonwebtoken');
 const config = require('../config/config')
+const logger = require('../utils/logger')
 const JWT_SECRET = config.jwtSecret;
 
 /**
@@ -9,12 +10,17 @@ const JWT_SECRET = config.jwtSecret;
  * @returns 
  */
 exports.createToken = (user) => {
-    const payload = {
-        id: user.id,
-        email: user.email,
-        isAdmin: user.isAdmin || false,
-    };
-    return jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' }); // Token valid for 1 hour
+    try {
+        const payload = {
+            id: user.id,
+            email: user.email,
+            isAdmin: user.isAdmin || false,
+        };
+        // Token valid for 1 hour
+        return jwt.sign(payload, JWT_SECRET, { expiresIn: '3h' });
+    } catch (err) {
+        logger.error('Error in createToken:', err);
+    }
 };
 
 /**
@@ -41,7 +47,7 @@ exports.verifyToken = async (req, res, next) => {
         }
         next();
     } catch (err) {
-        return res.status(401).json({ message: 'Invalid token.' });
+        next(err)
     }
 };
 
@@ -61,7 +67,7 @@ exports.isAdmin = async (req, res, next) => {
             return res.status(403).json({ message: 'Access denied. Admins only.' });
         }
     } catch (error) {
-        console.error('Error checking admin role:', error);
-        res.status(500).send('Server error');
+        logger.error('Error checking admin role:', error);
+        next(error)
     }
 };

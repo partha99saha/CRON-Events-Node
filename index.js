@@ -1,14 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const passport = require('passport');
-const cron = require('node-cron');
 const initializePassport = require('./app/config/passport');
 const errorHandler = require('./app/middlewares/errorHandler')
 const sequelize = require('./app/models').sequelize;
-const cronService = require('./app/services/cronService')
 const authRoutes = require('./app/routes/auth');
 const eventRoutes = require('./app/routes/event');
-const logger = require('./app/config/logger');
+const logger = require('./app/utils/logger');
 const helmet = require('helmet');
 const cors = require('cors');
 const app = express();
@@ -31,9 +29,6 @@ initializePassport(passport);
 // Routes
 app.use('/user', authRoutes);
 app.use('/events', passport.authenticate('jwt', { session: false }), eventRoutes);
-
-// Initialize cron service
-cron.schedule('0 12 * * *', cronService())
 
 // Handle errors with middleware
 app.use(errorHandler)

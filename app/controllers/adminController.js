@@ -1,20 +1,21 @@
-const { Op } = require('sequelize');
+const { Op, Sequelize } = require('sequelize');
 const Event = require('../models').Event;
-const logger = require('../config/logger');
+const logger = require('../utils/logger');
 
 /**
  * List all events with pagination
  * @param {*} req 
  * @param {*} res 
+ * @param {*} next 
  * @returns 
  */
 exports.listEvents = async (req, res, next) => {
     const { page = 1, limit = 10, search = '', filterDate = '', filterCity = '' } = req.query;
-    const offset = (page - 1) * limit;
+    const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
 
     try {
         const queryOptions = {
-            limit,
+            limit: parseInt(limit, 10),
             offset,
             where: {
                 [Op.and]: [
@@ -37,7 +38,7 @@ exports.listEvents = async (req, res, next) => {
             events: events.rows,
             total: events.count,
             page: parseInt(page, 10),
-            totalPages: Math.ceil(events.count / limit)
+            totalPages: Math.ceil(events.count / parseInt(limit, 10))
         });
     } catch (error) {
         logger.error('Error listing events:', error);
@@ -49,6 +50,7 @@ exports.listEvents = async (req, res, next) => {
  * Change event status
  * @param {*} req 
  * @param {*} res 
+ * @param {*} next 
  * @returns 
  */
 exports.changeEventStatus = async (req, res, next) => {
@@ -77,6 +79,7 @@ exports.changeEventStatus = async (req, res, next) => {
  * Generate reports for paid and unpaid events
  * @param {*} req 
  * @param {*} res 
+ * @param {*} next 
  * @returns 
  */
 exports.generateReports = async (req, res, next) => {
@@ -85,8 +88,8 @@ exports.generateReports = async (req, res, next) => {
     try {
         const reports = await Event.findAll({
             attributes: [
-                [sequelize.fn('SUM', sequelize.literal('CASE WHEN "paidStatus" = true THEN 1 ELSE 0 END')), 'paidEvents'],
-                [sequelize.fn('SUM', sequelize.literal('CASE WHEN "paidStatus" = false THEN 1 ELSE 0 END')), 'unpaidEvents']
+                [Sequelize.fn('SUM', Sequelize.literal('CASE WHEN "paidStatus" = true THEN 1 ELSE 0 END')), 'paidEvents'],
+                [Sequelize.fn('SUM', Sequelize.literal('CASE WHEN "paidStatus" = false THEN 1 ELSE 0 END')), 'unpaidEvents']
             ],
             where: {
                 createdAt: {

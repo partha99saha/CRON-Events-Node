@@ -1,5 +1,5 @@
 const express = require('express');
-const upload = require('../config/fileHandler');
+const upload = require('../utils/fileHandler');
 const { verifyToken } = require('../middlewares/authorization');
 const eventController = require('../controllers/eventController');
 const { eventValidationRules } = require('../validators/eventValidator');

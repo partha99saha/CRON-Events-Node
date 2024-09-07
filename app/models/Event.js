@@ -6,6 +6,11 @@
  */
 module.exports = (sequelize, DataTypes) => {
   const Event = sequelize.define('Event', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
     title: {
       type: DataTypes.STRING,
       allowNull: false
@@ -55,6 +60,10 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0
     }
   });
+
+  Event.associate = models => {
+    Event.hasMany(models.Like, { foreignKey: 'eventId' });
+  };
+
   return Event;
 };
-

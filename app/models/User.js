@@ -6,6 +6,11 @@
  */
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -20,12 +25,16 @@ module.exports = (sequelize, DataTypes) => {
     },
     isAdmin: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
-      unique: true
+      defaultValue: false
     },
     resetToken: {
       type: DataTypes.STRING
-    },
+    }
   });
+
+  User.associate = models => {
+    User.hasMany(models.Like, { foreignKey: 'userId' });
+  };
+
   return User;
 };

@@ -1,13 +1,17 @@
 const fs = require('fs');
-const path = require('path');
+const cron = require('node-cron');
 const Event = require('../models').Event;
-const logger = require('../config/logger');
+const Like = require('../models').Like;
+const logger = require('../utils/logger');
 const { validationResult } = require('express-validator');
+const cronService = require('../services/cronService')
+const { Op } = require('sequelize');
 
 /**
  * Add a new event
  * @param {*} req 
  * @param {*} res 
+ * @param {*} next 
  * @returns 
  */
 exports.addEvent = async (req, res, next) => {
@@ -36,7 +40,10 @@ exports.addEvent = async (req, res, next) => {
             displayStatus,
             eventImage: eventImage.path // Save the image path or URL
         });
-        
+
+        // Initialize cron service
+        cron.schedule('0 12 * * *', cronService(req))
+        // Create URL
         const eventUrl = `${req.protocol}://${req.get('host')}/events/${event.id}`;
         res.status(201).json({ event, eventUrl });
     } catch (error) {
@@ -49,6 +56,7 @@ exports.addEvent = async (req, res, next) => {
  * View all events with pagination
  * @param {*} req 
  * @param {*} res 
+ * @param {*} next 
  * @returns 
  */
 exports.getEvents = async (req, res, next) => {
@@ -92,6 +100,7 @@ exports.getEvents = async (req, res, next) => {
  * Edit an event
  * @param {*} req 
  * @param {*} res 
+ * @param {*} next 
  * @returns 
  */
 exports.editEvent = async (req, res, next) => {
@@ -130,6 +139,7 @@ exports.editEvent = async (req, res, next) => {
  * Delete an event
  * @param {*} req 
  * @param {*} res 
+ * @param {*} next 
  * @returns 
  */
 exports.deleteEvent = async (req, res, next) => {

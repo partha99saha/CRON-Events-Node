@@ -1,8 +1,8 @@
 {
     "env": {
-        "node": true, // This tells ESLint that your code runs in Node.js
-        "commonjs": true, // This allows CommonJS (require/exports) syntax
-        "es2021": true // Use the latest ECMAScript version
+        "node": true,
+        "commonjs": true,
+        "es2021": true
     },
     "extends": [
         "eslint:recommended",
@@ -30,7 +30,7 @@
         ],
         "no-unused-vars": "warn",
         "no-console": "off",
-        "node/no-missing-require": "off", // Disable this rule if necessary
+        "node/no-missing-require": "off",
         "node/no-unsupported-features/es-syntax": [
             "error",
             {

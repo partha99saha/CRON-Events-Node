@@ -1,5 +1,5 @@
 const multer = require('multer');
-const logger = require('../config/logger')
+const logger = require('../utils/logger')
 
 /**
  * Custom error handler middleware.
