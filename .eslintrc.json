@@ -1,0 +1,45 @@
+{
+    "env": {
+        "node": true, // This tells ESLint that your code runs in Node.js
+        "commonjs": true, // This allows CommonJS (require/exports) syntax
+        "es2021": true // Use the latest ECMAScript version
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:node/recommended"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 12
+    },
+    "rules": {
+        "indent": [
+            "error",
+            2
+        ],
+        "linebreak-style": [
+            "error",
+            "unix"
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "no-unused-vars": "warn",
+        "no-console": "off",
+        "node/no-missing-require": "off", // Disable this rule if necessary
+        "node/no-unsupported-features/es-syntax": [
+            "error",
+            {
+                "version": ">=14.0.0",
+                "ignores": [
+                    "modules",
+                    "tests"
+                ]
+            }
+        ]
+    }
+}

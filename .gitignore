@@ -1,0 +1,72 @@
+# Node modules
+node_modules/
+
+# Logs
+*.log
+logs/
+*.log.*
+pids/
+*.pid
+*.seed
+
+# Dependency directories
+jspm_packages/
+
+# Build output
+dist/
+build/
+
+# Runtime data
+pids/
+*.pid
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
+# IDE/editor folders
+.vscode/
+.idea/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+
+# NPM package lock
+package-lock.json
+npm-debug.log*
+
+# Yarn lock file
+yarn.lock
+
+# Test coverage
+coverage/
+*.lcov
+
+# Compiled files
+*.tsbuildinfo
+
+# TypeScript
+*.tsbuildinfo
+
+# Bower
+bower_components/
+
+# Optional ESLint config files
+.eslintcache
+eslint-report.html
+
+# Optional Prettier config files
+.prettierignore
+.prettierrc
+
+# Debug logs
+debug.log
+
+# Misc
+*.sublime-project
+*.sublime-workspace
