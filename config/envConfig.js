@@ -12,3 +12,11 @@ module.exports = {
     databaseUrl: process.env.DATABASE_URL,
     environment: process.env.NODE_ENV,
 };
+
+
+// PORT=3000
+// JWT_SECRET=Secret$3579@1246&=907
+// DATABASE_URL=./dev_db.sqlite
+// NODE_ENV=development
+// npx sequelize-cli init 
+// npx sequelize-cli db:migrate
